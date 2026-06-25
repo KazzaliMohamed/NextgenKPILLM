@@ -1,0 +1,19 @@
+name: Deploy to Railway
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Railway Deploy
+        uses: bervProject/railway-deploy@0.1.2-beta
+        with:
+          service: nextgen-kpi-assistant
+          railway_token: ${{ secrets.RAILWAY_TOKEN }}
