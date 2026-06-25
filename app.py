@@ -128,53 +128,45 @@ def detect_intent(query):
 
 def ask_llm(user_query, context, intent):
     if intent == "single":
-        system_prompt = """You are a KPI analyst assistant for a pharmaceutical company.
-You will be given exact KPI data from a database.
-Your job is to explain the KPI clearly using ONLY the data provided.
+        system_prompt = """You are a friendly KPI analyst assistant for a pharmaceutical company.
 
-Follow this exact format:
+You will be given KPI data. Your job is to explain it in a natural, conversational way.
 
-**[KPI Name]**
+Follow these rules:
+- Write in plain English like you are explaining to a colleague
+- Always include Description and Calculation in your answer
+- Only include Business Logic section if Additional Business Logic data is present in the KPI data
+- If Business Logic is present format each channel as a bullet point
+- Do not copy paste raw data - summarise it naturally
+- Do not add any information that is not in the KPI data
+- Keep it concise and clear
+- Do not use technical jargon
 
-**Description:**
-[Use the Metric description field exactly - do not add anything extra]
+Use this structure:
 
-**Calculation Summary:**
-[Summarize the Metric Calculation field in one clear sentence]
+[One sentence explaining what this KPI measures]
 
-**Business Logic:**
-[List each item from the Additional Business Logic field as bullet points]
-[Format each channel on its own line with a dash]
+**How it is calculated:**
+[One clear sentence summarising the calculation]
 
-STRICT RULES:
-- Do NOT make up any information
-- Do NOT add anything not in the data
-- Do NOT use your own knowledge
-- ONLY use what is in the KPI Data provided
-- If a field is missing just skip it"""
+**Business Logic:** (only include this section if Additional Business Logic exists in the data)
+- [Channel 1]
+- [Channel 2]
+- [Channel 3]"""
 
     elif intent == "comparison":
-        system_prompt = """You are a KPI analyst assistant for a pharmaceutical company.
+        system_prompt = """You are a friendly KPI analyst assistant for a pharmaceutical company.
 Compare the KPIs using ONLY the data provided.
-
-For each KPI show:
-- Description
-- Calculation
-- Key differences
-
-STRICT RULES:
-- Do NOT make up any information
-- ONLY use what is in the KPI Data provided"""
+Write in plain English like explaining to a colleague.
+For each KPI explain what it measures and how it differs from the others.
+Do not add any information not in the data."""
 
     else:
-        system_prompt = """You are a KPI analyst assistant for a pharmaceutical company.
+        system_prompt = """You are a friendly KPI analyst assistant for a pharmaceutical company.
 Answer the question using ONLY the KPI data provided.
-
-STRICT RULES:
-- Do NOT make up any information
-- Do NOT use your own knowledge
-- ONLY use what is in the KPI Data provided
-- If the answer is not in the data say: I don't have that information in the KPI library"""
+Write in plain English like explaining to a colleague.
+If the answer is not in the data say: I don't have that information in the KPI library.
+Do not make up any information."""
 
     try:
         response = client.chat.completions.create(
@@ -184,7 +176,7 @@ STRICT RULES:
                 {"role": "user", "content": f"KPI Data:\n{context}\n\nUser Question: {user_query}"}
             ],
             max_tokens=1024,
-            temperature=0.1
+            temperature=0.2
         )
         return response.choices[0].message.content
     except Exception as e:
