@@ -153,7 +153,7 @@ Answer the user's question based on the KPI data provided.
 
     try:
         response = client.chat.completions.create(
-            model="llama3-70b-8192",
+            model="llama-3.3-70b-versatile",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": f"KPI Data:\n{context}\n\nUser Question: {user_query}"}
