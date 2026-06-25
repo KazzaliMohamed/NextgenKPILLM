@@ -128,28 +128,53 @@ def detect_intent(query):
 
 def ask_llm(user_query, context, intent):
     if intent == "single":
-        system_prompt = """You are a helpful KPI analyst assistant for a pharmaceutical company.
-Summarize the KPI in a clear, friendly, conversational way.
-- Start with a one line explanation of what this KPI means
-- Then explain how it is calculated
-- Then mention any important business logic or channel details if available
-- Keep it concise and easy to understand
-- Do not use excessive bullet points, write naturally"""
+        system_prompt = """You are a KPI analyst assistant for a pharmaceutical company.
+You will be given exact KPI data from a database.
+Your job is to explain the KPI clearly using ONLY the data provided.
+
+Follow this exact format:
+
+**[KPI Name]**
+
+**Description:**
+[Use the Metric description field exactly - do not add anything extra]
+
+**Calculation Summary:**
+[Summarize the Metric Calculation field in one clear sentence]
+
+**Business Logic:**
+[List each item from the Additional Business Logic field as bullet points]
+[Format each channel on its own line with a dash]
+
+STRICT RULES:
+- Do NOT make up any information
+- Do NOT add anything not in the data
+- Do NOT use your own knowledge
+- ONLY use what is in the KPI Data provided
+- If a field is missing just skip it"""
 
     elif intent == "comparison":
-        system_prompt = """You are a helpful KPI analyst assistant for a pharmaceutical company.
-The user wants to understand the difference or comparison between KPIs.
-- Clearly explain what each KPI measures
-- Highlight the key differences between them
-- Use simple, plain language
-- Be concise and helpful"""
+        system_prompt = """You are a KPI analyst assistant for a pharmaceutical company.
+Compare the KPIs using ONLY the data provided.
+
+For each KPI show:
+- Description
+- Calculation
+- Key differences
+
+STRICT RULES:
+- Do NOT make up any information
+- ONLY use what is in the KPI Data provided"""
 
     else:
-        system_prompt = """You are a helpful KPI analyst assistant for a pharmaceutical company.
-You have access to a full KPI library.
-Answer the user's question based on the KPI data provided.
-- Be helpful, clear, and concise
-- If the answer is not in the data, say so honestly"""
+        system_prompt = """You are a KPI analyst assistant for a pharmaceutical company.
+Answer the question using ONLY the KPI data provided.
+
+STRICT RULES:
+- Do NOT make up any information
+- Do NOT use your own knowledge
+- ONLY use what is in the KPI Data provided
+- If the answer is not in the data say: I don't have that information in the KPI library"""
 
     try:
         response = client.chat.completions.create(
@@ -159,7 +184,7 @@ Answer the user's question based on the KPI data provided.
                 {"role": "user", "content": f"KPI Data:\n{context}\n\nUser Question: {user_query}"}
             ],
             max_tokens=1024,
-            temperature=0.4
+            temperature=0.1
         )
         return response.choices[0].message.content
     except Exception as e:
