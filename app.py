@@ -10,7 +10,7 @@ st.set_page_config(
 )
 
 # ---------- GROQ CLIENT ----------
-client = Groq(api_key=st.secrets["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"])
+client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 
 # ---------- HEADER ----------
 st.markdown("""
